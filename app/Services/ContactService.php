@@ -27,7 +27,7 @@ class ContactService implements ContactServiceInterface
 
     public function createContact(array $data)
     {
-        if (Contact::where('phone', $data['phone'])->orWhere('email', $data['email'])->exists()) {
+        if (Contact::where('contact', $data['contact'])->orWhere('email', $data['email'])->exists()) {
             throw new DuplicateContactException();
         }
 

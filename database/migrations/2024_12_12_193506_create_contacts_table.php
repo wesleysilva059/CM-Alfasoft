@@ -11,7 +11,7 @@ return new class extends Migration
     Schema::create('contacts', function (Blueprint $table) {
         $table->id();
         $table->string('name');
-        $table->string('phone', 9)->unique();
+        $table->string('contact', 9)->unique();
         $table->string('email')->unique();
         $table->softDeletes(); // Soft Delete
         $table->timestamps();

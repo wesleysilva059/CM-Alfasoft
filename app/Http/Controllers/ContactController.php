@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
 use App\Services\ContactServiceInterface;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -17,49 +18,68 @@ class ContactController extends Controller
         $this->contactService = $contactService;
     }
 
-    public function index(): JsonResponse
+    public function index()
     {
-        $contacts = $this->contactService->getAllContacts();
-        return response()->json($contacts, Response::HTTP_OK);
+        try {
+            $contacts = $this->contactService->getAllContacts();
+            return view('contacts.index', compact('contacts'));
+        } catch (Exception $e) {
+            return redirect()->route('contacts.index')->with('error', 'Erro ao carregar lista de contatos.');
+        }
     }
 
-    public function show($id): JsonResponse
+    public function create()
+    {
+        return view('contacts.create');
+    }
+
+    public function show($id)
     {
         try {
             $contact = $this->contactService->getContactById($id);
-            return response()->json($contact, Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return $e->render();
+            return view('contacts.show', compact('contact'));
+        } catch (Exception $e) {
+            return redirect()->route('contacts.index')->with('error', 'Contato não encontrado.');
         }
     }
 
-    public function store(StoreContactRequest $request): JsonResponse
+    public function store(StoreContactRequest $request)
     {
         try {
-            $contact = $this->contactService->createContact($request->validated());
-            return response()->json($contact, Response::HTTP_CREATED);
-        } catch (\Exception $e) {
-            return $e->render();
+            $this->contactService->createContact($request->validated());
+            return redirect()->route('contacts.index')->with('success', 'Contato criado com sucesso!');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Erro ao criar contato.');
         }
     }
 
-    public function update(UpdateContactRequest $request, $id): JsonResponse
+    public function edit($id)
     {
         try {
-            $contact = $this->contactService->updateContact($id, $request->validated());
-            return response()->json($contact, Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return $e->render();
+            $contact = $this->contactService->getContactById($id);
+            return view('contacts.edit', compact('contact'));
+        } catch (Exception $e) {
+            return redirect()->route('contacts.index')->with('error', 'Erro ao carregar contato para edição.');
         }
     }
 
-    public function destroy($id): JsonResponse
+    public function update(UpdateContactRequest $request, $id)
+    {
+        try {
+            $this->contactService->updateContact($id, $request->validated());
+            return redirect()->route('contacts.index')->with('success', 'Contato atualizado com sucesso!');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Erro ao atualizar contato.');
+        }
+    }
+
+    public function destroy($id)
     {
         try {
             $this->contactService->deleteContact($id);
-            return response()->json(['message' => 'Contact deleted successfully.'], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return $e->render();
+            return redirect()->route('contacts.index')->with('success', 'Contato deletado com sucesso!');
+        } catch (Exception $e) {
+            return redirect()->route('contacts.index')->with('error', 'Erro ao deletar contato.');
         }
     }
 }
