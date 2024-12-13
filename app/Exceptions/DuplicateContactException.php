@@ -10,7 +10,7 @@ class DuplicateContactException extends Exception
     public function render()
     {
         return response()->json([
-            'error' => 'A contact with the same phone or email already exists.'
+            'error' => 'Um registro com o mesmo contato ou e-mail já existe.'
         ], Response::HTTP_CONFLICT);
     }
 }

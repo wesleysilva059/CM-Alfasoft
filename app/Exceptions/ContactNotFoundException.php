@@ -10,7 +10,7 @@ class ContactNotFoundException extends Exception
     public function render()
     {
         return response()->json([
-            'error' => 'Contact not found.'
+            'error' => 'Contato não encontrado.'
         ], Response::HTTP_NOT_FOUND);
     }
 }
